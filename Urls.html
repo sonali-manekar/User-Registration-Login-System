@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Authentication System</title>
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+}
+
+.form-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.form-nav {
+    display: flex;
+    border-bottom: 1px solid #eee;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: #555;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    color: #4285f4;
+    border-bottom: 2px solid #4285f4;
+}
+
+.form {
+    padding: 30px;
+    display: none;
+}
+
+.form.active {
+    display: block;
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 500;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border 0.3s ease;
+}
+
+input:focus {
+    border-color: #4285f4;
+    outline: none;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #3367d6;
+}
+
+.message {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    display: none;
+}
+
+.message.error {
+    display: block;
+    background-color: #ffebee;
+    color: #d32f2f;
+    border: 1px solid #ffcdd2;
+}
+
+.message.success {
+    display: block;
+    background-color: #e8f5e9;
+    color: #388e3c;
+    border: 1px solid #c8e6c9;
+}
+
+.input-error {
+    border-color: #d32f2f;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .form {
+        padding: 20px;
+    }
+}
+        </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <div class="form-nav">
+                <button class="tab-btn active" data-form="login-form">Login</button>
+                <button class="tab-btn" data-form="register-form">Register</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="login-form" class="form active" action="php/login.php" method="POST">
+                <h2>Login to Your Account</h2>
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="submit-btn">Login</button>
+                </div>
+                <div id="login-message" class="message"></div>
+            </form>
+            
+            <!-- Registration Form -->
+            <form id="register-form" class="form" action="php/register.php" method="POST">
+                <h2>Create New Account</h2>
+                <div class="form-group">
+                    <label for="register-username">Username</label>
+                    <input type="text" id="register-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">Confirm Password</label>
+                    <input type="password" id="register-confirm-password" name="confirm_password" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="submit-btn">Register</button>
+                </div>
+                <div id="register-message" class="message"></div>
+            </form>
+        </div>
+    </div>
+    
+    <script>document.addEventListener('DOMContentLoaded', function() {
+        // Form switching functionality
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const forms = document.querySelectorAll('.form');
+        
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons and forms
+                tabBtns.forEach(b => b.classList.remove('active'));
+                forms.forEach(f => f.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding form
+                this.classList.add('active');
+                const formId = this.getAttribute('data-form');
+                document.getElementById(formId).classList.add('active');
+                
+                // Clear messages when switching forms
+                document.querySelectorAll('.message').forEach(msg => {
+                    msg.textContent = '';
+                    msg.classList.remove('error', 'success');
+                    msg.style.display = 'none';
+                });
+            });
+        });
+        
+        // Registration form validation
+        const registerForm = document.getElementById('register-form');
+        const registerMessage = document.getElementById('register-message');
+        
+        registerForm.addEventListener('submit', function(e) {
+            const username = document.getElementById('register-username').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            
+            // Reset previous error states
+            registerMessage.textContent = '';
+            registerMessage.classList.remove('error');
+            registerMessage.style.display = 'none';
+            
+            // Validate username (at least 3 characters)
+            if (username.length < 3) {
+                e.preventDefault();
+                showError(registerMessage, 'Username must be at least 3 characters long');
+                return;
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                showError(registerMessage, 'Please enter a valid email address');
+                return;
+            }
+            
+            // Validate password (at least 6 characters)
+            if (password.length < 6) {
+                e.preventDefault();
+                showError(registerMessage, 'Password must be at least 6 characters long');
+                return;
+            }
+            
+            // Check if passwords match
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                showError(registerMessage, 'Passwords do not match');
+                return;
+            }
+        });
+        
+        // Login form validation
+        const loginForm = document.getElementById('login-form');
+        const loginMessage = document.getElementById('login-message');
+        
+        loginForm.addEventListener('submit', function(e) {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            
+            // Reset previous error states
+            loginMessage.textContent = '';
+            loginMessage.classList.remove('error');
+            loginMessage.style.display = 'none';
+            
+            // Basic validation
+            if (username === '' || password === '') {
+                e.preventDefault();
+                showError(loginMessage, 'Please enter both username and password');
+                return;
+            }
+        });
+        
+        // Function to show error message
+        function showError(element, message) {
+            element.textContent = message;
+            element.classList.add('error');
+            element.style.display = 'block';
+        }
+        
+        // Handle form submission responses via AJAX (optional enhancement)
+        // This can be implemented if you want to avoid page reloads
+    });</script>
+</body>
+</html>
